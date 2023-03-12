@@ -65,6 +65,9 @@ view model =
                 , button [ onClick Submit ] [ text "Ok" ]
                 ]
     Nothing -> 
-        div []
-                [ div [] [ text "Game over." ] 
+        let numbers = List.length model.answered
+            correctAnswers = List.length ( List.filter Tuple.second model.answered)
+         in div []
+                [ div [] [ text "Game over.\n" ]
+                , div [] [ text ("Du hast " ++ (String.fromInt correctAnswers) ++ " von " ++ (String.fromInt numbers)  ++ " Aufgaben korrekt gelöst!") ]
                 ]
