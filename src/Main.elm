@@ -1,8 +1,9 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, button, div, text)
-import Html.Events exposing (onClick)
+import Html exposing (Html, button, div, text, input)
+import Html.Events exposing (onClick, onInput)
+import Html.Attributes exposing (type_, value)
 
 
 
@@ -16,33 +17,54 @@ main =
 
 -- MODEL
 
-type alias Model = Int
+type alias Model = {
+        currentValue: Maybe Int,
+        remaining: List Int,
+        answered: List (Int, Bool)
+    }
 
 init : Model
-init =
-  0
+init = { 
+    currentValue = Nothing,
+    remaining = List.range 1 20,
+    answered = []
+ }
 
 
 -- UPDATE
 
-type Msg = Increment | Decrement
+type Msg = Change String | Submit
 
 update : Msg -> Model -> Model
 update msg model =
   case msg of
-    Increment ->
-      model + 1
+    Change val ->
+      { model | currentValue = String.toInt val }
 
-    Decrement ->
-      model - 1
+    Submit ->
+      let currentNumber = List.head model.remaining |> Maybe.withDefault 0
+          expected = currentNumber * 2
+          correct = (Maybe.withDefault -1 model.currentValue) == expected
+          updatedAnswers = (currentNumber, correct) :: model.answered
+       in {
+              currentValue = Nothing,
+              remaining = List.tail model.remaining |> Maybe.withDefault [],
+              answered = updatedAnswers
+          }
 
 
 -- VIEW
 
 view : Model -> Html Msg
 view model =
-  div []
-    [ button [ onClick Decrement ] [ text "-" ]
-    , div [] [ text (String.fromInt model) ]
-    , button [ onClick Increment ] [ text "+" ]
-    ]
+  case List.head model.remaining of
+    Just currentNumber ->
+        div []
+                [ div [] [ text ("Was ist das doppelte von " ++ String.fromInt currentNumber)]
+                , input [ onInput Change, type_ "number", value ( (Maybe.map String.fromInt model.currentValue) |> Maybe.withDefault "" ) ] []
+                , button [ onClick Submit ] [ text "Ok" ]
+                ]
+    Nothing -> 
+        div []
+                [ div [] [ text "Game over." ] 
+                ]
