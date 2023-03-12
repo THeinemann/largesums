@@ -1,11 +1,10 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, button, div, text, input)
-import Html.Events exposing (onClick, onInput)
+import Html exposing (Html, div, text, input)
+import Html.Events exposing (onSubmit, onInput)
 import Html.Attributes exposing (type_, value)
-
-
+import Html exposing (form)
 
 -- MAIN
 
@@ -66,6 +65,7 @@ update msg model =
 
 -- VIEW
 
+answerMessage : Answer -> Html msg
 answerMessage answer =
     case answer of
         Correct -> div [] [ text "Richtig!" ]
@@ -77,10 +77,12 @@ view model =
    in case List.head model.remaining of
         Just currentNumber ->
             div []
-                    (feedback ++ [ div [] [ text ("Was ist das doppelte von " ++ String.fromInt currentNumber)]
-                    , input [ onInput Change, type_ "number", value ( (Maybe.map String.fromInt model.currentValue) |> Maybe.withDefault "" ) ] []
-                    , button [ onClick Submit ] [ text "Ok" ]
-                    ])
+                    [ form [ onSubmit Submit ]
+                        (feedback ++ [ div [] [ text ("Was ist das doppelte von " ++ String.fromInt currentNumber)]
+                        , input [ onInput Change, type_ "number", value ( (Maybe.map String.fromInt model.currentValue) |> Maybe.withDefault "" ) ] []
+                        , input [ type_ "submit" ] [ text "Ok" ]
+                        ])
+                    ]
         Nothing -> 
             let numbers = List.length model.answered
                 correctAnswers = List.length ( List.filter isCorrect model.answered)
