@@ -6,12 +6,14 @@ import Html.Events exposing (onSubmit, onInput)
 import Html.Attributes exposing (type_, value)
 import Html exposing (form)
 import Html.Attributes exposing (class)
+import Random.List
+import Random
 
 -- MAIN
 
 
 main =
-  Browser.sandbox { init = init, update = update, view = view }
+  Browser.element { init = init, update = updateWrapper, view = view, subscriptions = (\x -> Sub.none) }
 
 
 
@@ -32,25 +34,25 @@ type alias Model = {
         previous: Maybe Answer
     }
 
-init : Model
-init = { 
+init : () -> (Model, Cmd Msg)
+init _ = ({ 
     currentValue = Nothing,
-    remaining = List.range 1 20,
+    remaining = [],
     answered = [],
     previous = Nothing
- }
+ }, Random.generate Input (Random.List.shuffle (List.range 1 20)) )
 
 
 -- UPDATE
 
-type Msg = Change String | Submit
+type Msg = Change String | Submit | Input (List Int)
+
 
 update : Msg -> Model -> Model
 update msg model =
   case msg of
     Change val ->
       { model | currentValue = String.toInt val }
-
     Submit ->
       let currentNumber = List.head model.remaining |> Maybe.withDefault 0
           expected = currentNumber * 2
@@ -62,6 +64,12 @@ update msg model =
               answered = updatedAnswers,
               previous = Just (answer)
           }
+    Input list ->
+      { model | remaining = list }
+
+
+updateWrapper : Msg -> Model -> (Model, Cmd Msg)
+updateWrapper msg model = (update msg model, Cmd.none)
 
 
 -- VIEW
