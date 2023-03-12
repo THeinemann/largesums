@@ -3,11 +3,11 @@ module Main exposing (..)
 import Browser
 import Html exposing (Html, div, text, input)
 import Html.Events exposing (onSubmit, onInput)
-import Html.Attributes exposing (type_, value)
+import Html.Attributes exposing (type_, value, class, autofocus)
 import Html exposing (form)
-import Html.Attributes exposing (class)
 import Random.List
 import Random
+import Html.Keyed as Keyed
 
 -- MAIN
 
@@ -86,11 +86,13 @@ view model =
    in case List.head model.remaining of
         Just currentNumber ->
             div []
-                    [ form [ onSubmit Submit ]
-                        (feedback ++ [ div [] [ text ("Was ist das doppelte von " ++ String.fromInt currentNumber ++ "?")]
-                        , input [ onInput Change, type_ "number", value ( (Maybe.map String.fromInt model.currentValue) |> Maybe.withDefault "" ) ] []
-                        , input [ type_ "submit" ] [ text "Ok" ]
-                        ])
+                    [ Keyed.node "form" [ onSubmit Submit ]
+                        ((List.map (\x -> ("feedback", x)) feedback) ++ 
+                          [ ("question", div [] [ text ("Was ist das doppelte von " ++ String.fromInt currentNumber ++ "?")])
+                          , ("input", input [ onInput Change, type_ "number", value ( (Maybe.map String.fromInt model.currentValue) |> Maybe.withDefault "" ), autofocus True ] [])
+                          , ("submitButton", input [ type_ "submit" ] [ text "Ok" ])
+                          ]
+                        )
                     ]
         Nothing -> 
             let numbers = List.length model.answered
