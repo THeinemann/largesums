@@ -5,6 +5,7 @@ import Html exposing (Html, div, text, input)
 import Html.Events exposing (onSubmit, onInput)
 import Html.Attributes exposing (type_, value)
 import Html exposing (form)
+import Html.Attributes exposing (class)
 
 -- MAIN
 
@@ -68,8 +69,8 @@ update msg model =
 answerMessage : Answer -> Html msg
 answerMessage answer =
     case answer of
-        Correct -> div [] [ text "Richtig!" ]
-        Wrong n -> div [] [ text ("Leider Falsch. Das doppelte von " ++ (String.fromInt n) ++ " ist " ++ (String.fromInt (n * 2)) ++ "!") ]
+        Correct -> div [ class "feedback correct" ] [ text "Richtig!" ]
+        Wrong n -> div [ class "feedback wrong" ] [ text ("Leider Falsch. Das doppelte von " ++ (String.fromInt n) ++ " ist " ++ (String.fromInt (n * 2)) ++ "!") ]
 
 view : Model -> Html Msg
 view model =
@@ -78,7 +79,7 @@ view model =
         Just currentNumber ->
             div []
                     [ form [ onSubmit Submit ]
-                        (feedback ++ [ div [] [ text ("Was ist das doppelte von " ++ String.fromInt currentNumber)]
+                        (feedback ++ [ div [] [ text ("Was ist das doppelte von " ++ String.fromInt currentNumber ++ "?")]
                         , input [ onInput Change, type_ "number", value ( (Maybe.map String.fromInt model.currentValue) |> Maybe.withDefault "" ) ] []
                         , input [ type_ "submit" ] [ text "Ok" ]
                         ])
