@@ -1,19 +1,19 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, div, text, input, br, h1)
-import Html.Events exposing (onSubmit, onInput)
-import Html.Attributes exposing (type_, value, class, autofocus)
-import Html exposing (form)
+import Html.Styled exposing (Html, div, text, input, br, h1, toUnstyled)
+import Html.Styled.Events exposing (onSubmit, onInput)
+import Html.Styled.Attributes exposing (type_, value, class, autofocus, css)
 import Random.List
 import Random
-import Html.Keyed as Keyed
+import Html.Styled.Keyed as Keyed
+import Css exposing (..)
 
 -- MAIN
 
 
 main =
-  Browser.element { init = init, update = updateWrapper, view = view, subscriptions = (\x -> Sub.none) }
+  Browser.element { init = init, update = updateWrapper, view = view >> toUnstyled, subscriptions = (\_ -> Sub.none) }
 
 
 
@@ -82,11 +82,12 @@ answerMessage answer =
 
 view : Model -> Html Msg
 view model =
-  div []
+  div [ css [ marginLeft (pct 30), marginRight (pct 30), height (pct 100), textAlign center ] ]
     [ h1 [] [ text "Verdoppeln" ]
     , div [] [view1 model]
     ]
 
+defaultMargin = [ margin (px 3) ]
 
 view1 : Model -> Html Msg
 view1 model =
@@ -97,9 +98,9 @@ view1 model =
                     [ Keyed.node "form" [ onSubmit Submit ]
                         ((List.map (\x -> ("feedback", x)) feedback) ++ 
                           [ ("question", div [] [ text ("Was ist das Doppelte von " ++ String.fromInt currentNumber ++ "?")])
-                          , ("input", input [ onInput Change, type_ "number", value ( (Maybe.map String.fromInt model.currentValue) |> Maybe.withDefault "" ), autofocus True ] [])
+                          , ("input", input [ onInput Change, type_ "number", value ( (Maybe.map String.fromInt model.currentValue) |> Maybe.withDefault "" ), css defaultMargin, autofocus True ] [])
                           , ("br", br [] [])
-                          , ("submitButton", input [ type_ "submit" ] [ text "Ok" ])
+                          , ("submitButton", input [ type_ "submit", css defaultMargin ] [ text "Ok" ])
                           ]
                         )
                     ]
