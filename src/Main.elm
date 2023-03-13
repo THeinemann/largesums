@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, div, text, input)
+import Html exposing (Html, div, text, input, br, h1)
 import Html.Events exposing (onSubmit, onInput)
 import Html.Attributes exposing (type_, value, class, autofocus)
 import Html exposing (form)
@@ -82,14 +82,23 @@ answerMessage answer =
 
 view : Model -> Html Msg
 view model =
+  div []
+    [ h1 [] [ text "Verdoppeln" ]
+    , div [] [view1 model]
+    ]
+
+
+view1 : Model -> Html Msg
+view1 model =
   let feedback = Maybe.map (\answer -> [ answerMessage answer ]) model.previous |> Maybe.withDefault []
    in case List.head model.remaining of
         Just currentNumber ->
             div []
                     [ Keyed.node "form" [ onSubmit Submit ]
                         ((List.map (\x -> ("feedback", x)) feedback) ++ 
-                          [ ("question", div [] [ text ("Was ist das doppelte von " ++ String.fromInt currentNumber ++ "?")])
+                          [ ("question", div [] [ text ("Was ist das Doppelte von " ++ String.fromInt currentNumber ++ "?")])
                           , ("input", input [ onInput Change, type_ "number", value ( (Maybe.map String.fromInt model.currentValue) |> Maybe.withDefault "" ), autofocus True ] [])
+                          , ("br", br [] [])
                           , ("submitButton", input [ type_ "submit" ] [ text "Ok" ])
                           ]
                         )
