@@ -84,7 +84,14 @@ answerMessage answer =
 
 view : Model -> Html Msg
 view model =
-  div [ css [ marginLeft (pct 30), marginRight (pct 30), height (pct 100), textAlign center ] ]
+  div [ css [ marginLeft (pct 30)
+            , marginRight (pct 30)
+            , height (pct 100)
+            , textAlign center
+            , backgroundColor (hex "#FFF")
+            , boxShadow4 (px 0) (px 30) (px 60) (rgba 0 0 0 0.3) 
+            , borderRadius (px 12)
+            ] ]
     [ h1 [] [ text "Verdoppeln" ]
     , div [] [view1 model]
     ]
