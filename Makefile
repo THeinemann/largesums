@@ -10,7 +10,7 @@ dist:
 	mkdir -p $@
 
 dist/main.js: src/Main.elm dist
-	elm make --output=$@ $<
+	elm make --optimize --output=$@ $<
 
 dist/index.html: html/index.html dist
 	cp $< $@
