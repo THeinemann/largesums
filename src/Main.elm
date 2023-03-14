@@ -8,12 +8,14 @@ import Random.List
 import Random
 import Html.Styled.Keyed as Keyed
 import Css exposing (..)
+import Html.Styled exposing (button)
+import Html.Styled.Events exposing (onClick)
 
 -- MAIN
 
 
 main =
-  Browser.element { init = init, update = updateWrapper, view = view >> toUnstyled, subscriptions = (\_ -> Sub.none) }
+  Browser.element { init = init, update = update, view = view >> toUnstyled, subscriptions = (\_ -> Sub.none) }
 
 -- MODEL
 
@@ -34,45 +36,43 @@ type alias GameState = {
 
 type Model = Initialising | InGame GameState | Error String
 
-init : () -> (Model, Cmd Msg)
-init _ = (Initialising, Random.generate Input (Random.List.shuffle (List.range 1 20)))
+shuffleCommand : Cmd Msg
+shuffleCommand = Random.generate Input (Random.List.shuffle (List.range 1 20))
 
+init : () -> (Model, Cmd Msg)
+init _ = (Initialising, shuffleCommand)
 
 -- UPDATE
 
-type Msg = Change String | Submit | Input (List Int)
+type Msg = Change String | Submit | Input (List Int) | Reset
 
-
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case (msg, model) of
+    (Reset, _) -> init ()
     (Change val, InGame gameState) ->
-      InGame { gameState | currentValue = String.toInt val }
+      (InGame { gameState | currentValue = String.toInt val }, Cmd.none)
     (Submit, InGame gameState) ->
       let currentNumber = List.head gameState.remaining |> Maybe.withDefault 0
           expected = currentNumber * 2
           answer = if (Maybe.withDefault -1 gameState.currentValue) == expected then Correct else Wrong currentNumber
           updatedAnswers = answer :: gameState.answered
-       in InGame {
+          newModel = InGame {
               currentValue = Nothing,
               remaining = List.tail gameState.remaining |> Maybe.withDefault [],
               answered = updatedAnswers,
               previous = Just (answer)
-          }
+            }
+       in (newModel, Cmd.none)
     (Input list, _) ->
-      InGame { 
+      (InGame { 
             currentValue = Nothing,
             remaining = list,
             answered = [],
             previous = Nothing
-        }
+        }, Cmd.none)
     _ ->  -- We should never end up here 
-      Error "Invalid combination of message and model. This should never happen."
-
-
-updateWrapper : Msg -> Model -> (Model, Cmd Msg)
-updateWrapper msg model = (update msg model, Cmd.none)
-
+      (Error "Invalid combination of message and model. This should never happen.", Cmd.none)
 
 -- VIEW
 
@@ -115,6 +115,7 @@ view1 model =
                 in div []
                         (feedback ++ [ div [] [ text "Game over.\n" ]
                         , div [] [ text ("Du hast " ++ (String.fromInt correctAnswers) ++ " von " ++ (String.fromInt numbers)  ++ " Aufgaben korrekt gelöst!") ]
+                        , button [ onClick Reset ] [ text "Nochmal!" ]
                         ])
     Error msg -> div [] [ text ("Interner Fehler: " ++ msg ++ ". Dies ist ein Bug.") ]
     _ -> h2 [] [text "Laden. Bitte warten..."]
