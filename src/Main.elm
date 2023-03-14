@@ -122,7 +122,7 @@ view1 model =
                 in div []
                         (feedback ++ [ div [] [ text "Game over.\n" ]
                         , div [] [ text ("Du hast " ++ (String.fromInt correctAnswers) ++ " von " ++ (String.fromInt numbers)  ++ " Aufgaben korrekt gelöst!") ]
-                        , button [ onClick Reset ] [ text "Nochmal!" ]
+                        , button [ onClick Reset, css defaultMargin ] [ text "Nochmal!" ]
                         ])
     Error msg -> div [] [ text ("Interner Fehler: " ++ msg ++ ". Dies ist ein Bug.") ]
     _ -> h2 [] [text "Laden. Bitte warten..."]
