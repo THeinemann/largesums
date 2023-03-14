@@ -114,7 +114,7 @@ view1 model =
                               [ ("question", div [] [ text ("Was ist das Doppelte von " ++ String.fromInt currentNumber ++ "?")])
                               , ("input", input [ onInput Change, type_ "number", value ( (Maybe.map String.fromInt gameState.currentValue) |> Maybe.withDefault "" ), css defaultMargin, autofocus True ] [])
                               , ("br", br [] [])
-                              , ("submitButton", input [ type_ "submit", css defaultMargin ] [ text "Ok" ])
+                              , ("submitButton", input [ type_ "submit", css defaultMargin, value "Ok" ] [ ])
                               ]
                             )
                         ]
