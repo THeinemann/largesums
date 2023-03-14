@@ -86,7 +86,9 @@ view : Model -> Html Msg
 view model =
   div [ css [ marginLeft (pct 30)
             , marginRight (pct 30)
-            , height (pct 100)
+            , marginTop (px 20)
+            , paddingBottom (px 12)
+            , paddingTop (px 1)
             , textAlign center
             , backgroundColor (hex "#FFF")
             , boxShadow4 (px 0) (px 30) (px 60) (rgba 0 0 0 0.3) 
