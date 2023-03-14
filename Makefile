@@ -1,5 +1,5 @@
 
-.PHONY: all clea
+.PHONY: all clean
 
 all: dist/main.js dist/index.html
 
