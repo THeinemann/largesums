@@ -111,8 +111,8 @@ view1 model =
   case model of
     InGame gameState ->
       let feedback = Maybe.map (\answer -> [ answerMessage answer ]) gameState.previous |> Maybe.withDefault []
-      in case List.head gameState.remaining of
-            Just currentNumber ->
+      in case gameState.remaining of
+            currentNumber :: _ ->
                 div []
                         [ Keyed.node "form" [ onSubmit Submit ]
                             ((List.map (\x -> ("feedback", x)) feedback) ++ 
@@ -129,7 +129,7 @@ view1 model =
                               ]
                             )
                         ]
-            Nothing -> 
+            [] -> 
                 let numbers = List.length gameState.answered
                     correctAnswers = List.length ( List.filter isCorrect gameState.answered)
                 in div []
