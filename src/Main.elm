@@ -10,6 +10,10 @@ import Html.Styled.Keyed as Keyed
 import Css exposing (..)
 import Html.Styled exposing (button)
 import Html.Styled.Events exposing (onClick)
+import Bootstrap.Alert exposing (simpleSuccess)
+import Html.Styled exposing (fromUnstyled)
+import Bootstrap.Alert exposing (simpleDanger)
+import Html
 
 -- MAIN
 
@@ -78,9 +82,10 @@ update msg model =
 
 answerMessage : Answer -> Html msg
 answerMessage answer =
-    case answer of
-        Correct -> div [ class "feedback correct" ] [ text "Richtig!" ]
-        Wrong n -> div [ class "feedback wrong" ] [ text ("Leider Falsch. Das Doppelte von " ++ (String.fromInt n) ++ " ist " ++ (String.fromInt (n * 2)) ++ ".") ]
+    let unstyled = case answer of
+            Correct -> simpleSuccess [ ] [ Html.text "Richtig!" ]
+            Wrong n -> simpleDanger [ ] [ Html.text ("Leider Falsch. Das Doppelte von " ++ (String.fromInt n) ++ " ist " ++ (String.fromInt (n * 2)) ++ ".") ]
+     in fromUnstyled unstyled
 
 view : Model -> Html Msg
 view model =
@@ -120,7 +125,7 @@ view1 model =
                                                 , A.required True
                                                 ] [])
                               , ("br", br [] [])
-                              , ("submitButton", input [ type_ "submit", css defaultMargin, value "Ok" ] [ ])
+                              , ("submitButton", input [ type_ "submit", css defaultMargin, value "Ok", class "btn btn-primary" ] [ ])
                               ]
                             )
                         ]
@@ -130,7 +135,7 @@ view1 model =
                 in div []
                         (feedback ++ [ div [] [ text "Game over.\n" ]
                         , div [] [ text ("Du hast " ++ (String.fromInt correctAnswers) ++ " von " ++ (String.fromInt numbers)  ++ " Aufgaben korrekt gelöst!") ]
-                        , button [ onClick Reset, css defaultMargin ] [ text "Nochmal!" ]
+                        , button [ onClick Reset, css defaultMargin, class "btn btn-primary" ] [ text "Nochmal!" ]
                         ])
     Error msg -> div [] [ text ("Interner Fehler: " ++ msg ++ ". Dies ist ein Bug.") ]
     _ -> h2 [] [text "Laden. Bitte warten..."]
