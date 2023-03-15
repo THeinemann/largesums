@@ -1,10 +1,13 @@
 
-.PHONY: all clean
+.PHONY: all test clean
 
-all: dist/main.js dist/index.html
+all: test dist/main.js dist/index.html
 
 clean:
 	rm -rf dist elm-stuff
+
+test:
+	elm-test
 
 dist:
 	mkdir -p $@
