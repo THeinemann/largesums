@@ -80,7 +80,7 @@ answerMessage : Answer -> Html msg
 answerMessage answer =
     case answer of
         Correct -> div [ class "feedback correct" ] [ text "Richtig!" ]
-        Wrong n -> div [ class "feedback wrong" ] [ text ("Leider Falsch. Das doppelte von " ++ (String.fromInt n) ++ " ist " ++ (String.fromInt (n * 2)) ++ "!") ]
+        Wrong n -> div [ class "feedback wrong" ] [ text ("Leider Falsch. Das Doppelte von " ++ (String.fromInt n) ++ " ist " ++ (String.fromInt (n * 2)) ++ ".") ]
 
 view : Model -> Html Msg
 view model =
