@@ -3,7 +3,7 @@ module Main exposing (..)
 import Browser
 import Html.Styled exposing (Html, div, text, input, br, h1, h2, toUnstyled)
 import Html.Styled.Events exposing (onSubmit, onInput)
-import Html.Styled.Attributes exposing (type_, value, class, autofocus, css)
+import Html.Styled.Attributes as A exposing (type_, value, class, autofocus, css)
 import Random.List
 import Random
 import Html.Styled.Keyed as Keyed
@@ -112,7 +112,13 @@ view1 model =
                         [ Keyed.node "form" [ onSubmit Submit ]
                             ((List.map (\x -> ("feedback", x)) feedback) ++ 
                               [ ("question", div [] [ text ("Was ist das Doppelte von " ++ String.fromInt currentNumber ++ "?")])
-                              , ("input", input [ onInput Change, type_ "number", value ( (Maybe.map String.fromInt gameState.currentValue) |> Maybe.withDefault "" ), css defaultMargin, autofocus True ] [])
+                              , ("input", input [ onInput Change
+                                                , type_ "number"
+                                                , value ( (Maybe.map String.fromInt gameState.currentValue) |> Maybe.withDefault "" )
+                                                , css defaultMargin
+                                                , autofocus True
+                                                , A.required True
+                                                ] [])
                               , ("br", br [] [])
                               , ("submitButton", input [ type_ "submit", css defaultMargin, value "Ok" ] [ ])
                               ]
