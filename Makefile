@@ -4,7 +4,7 @@
 all: dist/main.js dist/index.html
 
 clean:
-	rm -rf dist
+	rm -rf dist elm-stuff
 
 dist:
 	mkdir -p $@
