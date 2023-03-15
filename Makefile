@@ -7,7 +7,7 @@ clean:
 	rm -rf dist elm-stuff
 
 test:
-	elm-test
+	elm-test-rs
 
 dist:
 	mkdir -p $@
