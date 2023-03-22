@@ -34,34 +34,36 @@ isCorrect answer =
 type alias GameState = {
         currentValue: Maybe Int,
         remaining: List Int,
-        answered: List (Answer),
+        answered: List Answer,
         previous: Maybe Answer
     }
 
-type Model = Initialising | InGame GameState | Error String
+initialised : GameState -> Bool
+initialised gamestate = not ( (List.isEmpty gamestate.remaining) && (List.isEmpty gamestate.answered) )
+
 
 shuffleCommand : Cmd Msg
 shuffleCommand = Random.generate Input (Random.List.shuffle (List.range 1 20))
 
-init : () -> (Model, Cmd Msg)
-init _ = (Initialising, shuffleCommand)
+init : () -> (GameState, Cmd Msg)
+init _ = ({ currentValue = Nothing, remaining = [], answered = [], previous = Nothing }, shuffleCommand)
 
 -- UPDATE
 
 type Msg = Change String | Submit | Input (List Int) | Reset
 
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> GameState -> (GameState, Cmd Msg)
 update msg model =
   case (msg, model) of
     (Reset, _) -> init ()
-    (Change val, InGame gameState) ->
-      (InGame { gameState | currentValue = String.toInt val }, Cmd.none)
-    (Submit, InGame gameState) ->
+    (Change val, gameState) ->
+      ({ gameState | currentValue = String.toInt val }, Cmd.none)
+    (Submit, gameState) ->
       let currentNumber = List.head gameState.remaining |> Maybe.withDefault 0
           expected = currentNumber * 2
           answer = if (Maybe.withDefault -1 gameState.currentValue) == expected then Correct else Wrong currentNumber
           updatedAnswers = answer :: gameState.answered
-          newModel = InGame {
+          newModel = {
               currentValue = Nothing,
               remaining = List.tail gameState.remaining |> Maybe.withDefault [],
               answered = updatedAnswers,
@@ -69,14 +71,7 @@ update msg model =
             }
        in (newModel, Cmd.none)
     (Input list, _) ->
-      (InGame { 
-            currentValue = Nothing,
-            remaining = list,
-            answered = [],
-            previous = Nothing
-        }, Cmd.none)
-    _ ->  -- We should never end up here 
-      (Error "Invalid combination of message and model. This should never happen.", Cmd.none)
+      ({model | remaining = list}, Cmd.none)
 
 -- VIEW
 
@@ -87,7 +82,7 @@ answerMessage answer =
             Wrong n -> simpleDanger [ ] [ Html.text ("Leider Falsch. Das Doppelte von " ++ (String.fromInt n) ++ " ist " ++ (String.fromInt (n * 2)) ++ ".") ]
      in fromUnstyled unstyled
 
-view : Model -> Html Msg
+view : GameState -> Html Msg
 view model =
   div [ css [ marginLeft (pct 30)
             , marginRight (pct 30)
@@ -106,12 +101,11 @@ view model =
 defaultMargin : List Style
 defaultMargin = [ margin (px 3) ]
 
-view1 : Model -> Html Msg
+view1 : GameState -> Html Msg
 view1 model =
-  case model of
-    InGame gameState ->
-      let feedback = Maybe.map (\answer -> [ answerMessage answer ]) gameState.previous |> Maybe.withDefault []
-      in case gameState.remaining of
+  if not (initialised model) then h2 [] [text "Laden. Bitte warten..."] else
+      let feedback = Maybe.map (\answer -> [ answerMessage answer ]) model.previous |> Maybe.withDefault []
+      in case model.remaining of
             currentNumber :: _ ->
                 div []
                         [ Keyed.node "form" [ onSubmit Submit ]
@@ -119,7 +113,7 @@ view1 model =
                               [ ("question", div [] [ text ("Was ist das Doppelte von " ++ String.fromInt currentNumber ++ "?")])
                               , ("input", input [ onInput Change
                                                 , type_ "number"
-                                                , value ( (Maybe.map String.fromInt gameState.currentValue) |> Maybe.withDefault "" )
+                                                , value ( (Maybe.map String.fromInt model.currentValue) |> Maybe.withDefault "" )
                                                 , css defaultMargin
                                                 , autofocus True
                                                 , A.required True
@@ -130,12 +124,10 @@ view1 model =
                             )
                         ]
             [] -> 
-                let numbers = List.length gameState.answered
-                    correctAnswers = List.length ( List.filter isCorrect gameState.answered)
+                let numbers = List.length model.answered
+                    correctAnswers = List.length ( List.filter isCorrect model.answered)
                 in div []
                         (feedback ++ [ div [] [ text "Game over.\n" ]
                         , div [] [ text ("Du hast " ++ (String.fromInt correctAnswers) ++ " von " ++ (String.fromInt numbers)  ++ " Aufgaben korrekt gelöst!") ]
                         , button [ onClick Reset, css defaultMargin, class "btn btn-primary" ] [ text "Nochmal!" ]
                         ])
-    Error msg -> div [] [ text ("Interner Fehler: " ++ msg ++ ". Dies ist ein Bug.") ]
-    _ -> h2 [] [text "Laden. Bitte warten..."]
