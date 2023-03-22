@@ -99,7 +99,7 @@ view model =
             , boxShadow4 (px 0) (px 30) (px 60) (rgba 0 0 0 0.3) 
             , borderRadius (px 12)
             ] ]
-    [ h1 [] [ text "Verdoppeln" ]
+    [ h1 [ css [ paddingTop (px 4) ] ] [ text "Verdoppeln" ]
     , div [] [view1 model]
     ]
 
