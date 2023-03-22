@@ -53,12 +53,12 @@ init _ = ({ currentValue = Nothing, remaining = [], answered = [], previous = No
 type Msg = Change String | Submit | Input (List Int) | Reset
 
 update : Msg -> GameState -> (GameState, Cmd Msg)
-update msg model =
-  case (msg, model) of
-    (Reset, _) -> init ()
-    (Change val, gameState) ->
+update msg gameState =
+  case msg of
+    Reset -> init ()
+    Change val ->
       ({ gameState | currentValue = String.toInt val }, Cmd.none)
-    (Submit, gameState) ->
+    Submit ->
       let currentNumber = List.head gameState.remaining |> Maybe.withDefault 0
           expected = currentNumber * 2
           answer = if (Maybe.withDefault -1 gameState.currentValue) == expected then Correct else Wrong currentNumber
@@ -70,8 +70,8 @@ update msg model =
               previous = Just (answer)
             }
        in (newModel, Cmd.none)
-    (Input list, _) ->
-      ({model | remaining = list}, Cmd.none)
+    Input list ->
+      ({gameState | remaining = list}, Cmd.none)
 
 -- VIEW
 
