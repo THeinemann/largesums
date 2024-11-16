@@ -92,6 +92,7 @@ selectionButton name msg =
             [ onClick msg
             , value name
             , css defaultMargin
+            , class "btn btn-info"
             ]
             [ text name ]
         , br [] []
