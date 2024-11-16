@@ -2,10 +2,11 @@ module Main exposing (..)
 
 import Bootstrap.Alert exposing (simpleDanger, simpleSuccess)
 import Browser
+import Doubling.Doubling as Doubling
 import Html
-import Html.Styled exposing (Html, div, fromUnstyled, h2, input, text, toUnstyled)
+import Html.Styled exposing (Html, br, button, div, fromUnstyled, h2, input, span, text, toUnstyled)
 import Html.Styled.Attributes exposing (class, css, type_, value)
-import Html.Styled.Events exposing (onSubmit)
+import Html.Styled.Events exposing (onClick, onInput, onSubmit)
 import Html.Styled.Keyed as Keyed
 import LargeSums.LargeSums as LargeSums
 import Styling exposing (defaultMargin, mainWindow)
@@ -28,6 +29,7 @@ type GameState
     = Init
     | Error String
     | LargeSumsState LargeSums.GameState
+    | DoublingState Doubling.GameState
 
 
 init : () -> ( GameState, Cmd Msg )
@@ -41,6 +43,7 @@ init _ =
 
 type Msg
     = LargeSumsMsg LargeSums.Msg
+    | DoublingMsg Doubling.Msg
 
 
 update : Msg -> GameState -> ( GameState, Cmd Msg )
@@ -48,17 +51,31 @@ update commonMsg gameState =
     case ( commonMsg, gameState ) of
         ( LargeSumsMsg msg, LargeSumsState state ) ->
             let
-                ( foo, bar ) =
+                ( moduleState, moduleMsg ) =
                     LargeSums.update msg state
             in
-            ( LargeSumsState foo, Cmd.map LargeSumsMsg bar )
+            ( LargeSumsState moduleState, Cmd.map LargeSumsMsg moduleMsg )
 
         ( LargeSumsMsg LargeSums.Reset, Init ) ->
             let
-                ( foo, bar ) =
+                ( moduleState, moduleMsg ) =
                     LargeSums.init ()
             in
-            ( LargeSumsState foo, Cmd.map LargeSumsMsg bar )
+            ( LargeSumsState moduleState, Cmd.map LargeSumsMsg moduleMsg )
+
+        ( DoublingMsg msg, DoublingState state ) ->
+            let
+                ( moduleState, moduleMsg ) =
+                    Doubling.update msg state
+            in
+            ( DoublingState moduleState, Cmd.map DoublingMsg moduleMsg )
+
+        ( DoublingMsg Doubling.Reset, Init ) ->
+            let
+                ( moduleState, moduleMsg ) =
+                    Doubling.init ()
+            in
+            ( DoublingState moduleState, Cmd.map DoublingMsg moduleMsg )
 
         _ ->
             ( Error "Game state and message do not match. This should not happen.", Cmd.none )
@@ -68,20 +85,36 @@ update commonMsg gameState =
 -- VIEW
 
 
+selectionButton : String -> Msg -> Html Msg
+selectionButton name msg =
+    span []
+        [ button
+            [ onClick msg
+            , value name
+            , css defaultMargin
+            ]
+            [ text name ]
+        , br [] []
+        ]
+
+
 view : GameState -> Html Msg
 view model =
     case model of
         LargeSumsState state ->
             Html.Styled.map LargeSumsMsg (LargeSums.view state)
 
+        DoublingState state ->
+            Html.Styled.map DoublingMsg (Doubling.view state)
+
         Init ->
             let
                 contents =
                     div []
                         [ text "Bitte wähle eine Übung:"
-                        , Keyed.node "form"
-                            [ onSubmit (LargeSumsMsg LargeSums.Reset) ]
-                            [ ( "submitButton", input [ type_ "submit", css defaultMargin, value "Große Summen", class "btn btn-primary" ] [] ) ]
+                        , br [] []
+                        , selectionButton "Verdoppeln" (DoublingMsg Doubling.Reset)
+                        , selectionButton "Große Summen" (LargeSumsMsg LargeSums.Reset)
                         ]
             in
             mainWindow "Mathe" contents

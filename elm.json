@@ -2,7 +2,8 @@
     "type": "application",
     "source-directories": [
         "src",
-        "src/LargeSums"
+        "src/LargeSums",
+        "src/Doubling"
     ],
     "elm-version": "0.19.1",
     "dependencies": {
