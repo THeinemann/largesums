@@ -1,15 +1,14 @@
 module Doubling.Doubling exposing (..)
 
 import Bootstrap.Alert exposing (simpleDanger, simpleSuccess)
-import Browser
-import Css exposing (..)
 import Html
-import Html.Styled exposing (Html, br, button, div, fromUnstyled, h1, h2, input, text, toUnstyled)
+import Html.Styled exposing (Html, br, button, div, fromUnstyled, h2, input, text)
 import Html.Styled.Attributes as A exposing (autofocus, class, css, type_, value)
 import Html.Styled.Events exposing (onClick, onInput, onSubmit)
 import Html.Styled.Keyed as Keyed
 import Random
 import Random.List
+import Styling exposing (defaultMargin, mainWindow)
 
 
 
@@ -125,75 +124,54 @@ answerMessage answer =
 
 view : GameState -> Html Msg
 view model =
-    div
-        [ css
-            [ marginLeft (pct 30)
-            , marginRight (pct 30)
-            , marginTop (px 20)
-            , paddingBottom (px 12)
-            , paddingTop (px 1)
-            , textAlign center
-            , backgroundColor (hex "#FFF")
-            , boxShadow4 (px 0) (px 30) (px 60) (rgba 0 0 0 0.3)
-            , borderRadius (px 12)
-            ]
-        ]
-        [ h1 [ css [ paddingTop (px 4) ] ] [ text "Verdoppeln" ]
-        , div [] [ view1 model ]
-        ]
+    let
+        contents =
+            if not (initialised model) then
+                h2 [] [ text "Laden. Bitte warten..." ]
 
-
-defaultMargin : List Style
-defaultMargin =
-    [ margin (px 3) ]
-
-
-view1 : GameState -> Html Msg
-view1 model =
-    if not (initialised model) then
-        h2 [] [ text "Laden. Bitte warten..." ]
-
-    else
-        let
-            feedback =
-                Maybe.map (\answer -> [ answerMessage answer ]) model.previous |> Maybe.withDefault []
-        in
-        case model.remaining of
-            currentNumber :: _ ->
-                div []
-                    [ Keyed.node "form"
-                        [ onSubmit Submit ]
-                        (List.map (\x -> ( "feedback", x )) feedback
-                            ++ [ ( "question", div [] [ text ("Was ist das Doppelte von " ++ String.fromInt currentNumber ++ "?") ] )
-                               , ( "input"
-                                 , input
-                                    [ onInput Change
-                                    , type_ "number"
-                                    , value (Maybe.map String.fromInt model.currentValue |> Maybe.withDefault "")
-                                    , css defaultMargin
-                                    , autofocus True
-                                    , A.required True
-                                    ]
-                                    []
-                                 )
-                               , ( "br", br [] [] )
-                               , ( "submitButton", input [ type_ "submit", css defaultMargin, value "Ok", class "btn btn-primary" ] [] )
-                               ]
-                        )
-                    ]
-
-            [] ->
+            else
                 let
-                    numbers =
-                        List.length model.answered
-
-                    correctAnswers =
-                        List.length (List.filter isCorrect model.answered)
+                    feedback =
+                        Maybe.map (\answer -> [ answerMessage answer ]) model.previous |> Maybe.withDefault []
                 in
-                div []
-                    (feedback
-                        ++ [ div [] [ text "Game over.\n" ]
-                           , div [] [ text ("Du hast " ++ String.fromInt correctAnswers ++ " von " ++ String.fromInt numbers ++ " Aufgaben korrekt gelöst!") ]
-                           , button [ onClick Reset, css defaultMargin, class "btn btn-primary" ] [ text "Nochmal!" ]
-                           ]
-                    )
+                case model.remaining of
+                    currentNumber :: _ ->
+                        div []
+                            [ Keyed.node "form"
+                                [ onSubmit Submit ]
+                                (List.map (\x -> ( "feedback", x )) feedback
+                                    ++ [ ( "question", div [] [ text ("Was ist das Doppelte von " ++ String.fromInt currentNumber ++ "?") ] )
+                                       , ( "input"
+                                         , input
+                                            [ onInput Change
+                                            , type_ "number"
+                                            , value (Maybe.map String.fromInt model.currentValue |> Maybe.withDefault "")
+                                            , css defaultMargin
+                                            , autofocus True
+                                            , A.required True
+                                            ]
+                                            []
+                                         )
+                                       , ( "br", br [] [] )
+                                       , ( "submitButton", input [ type_ "submit", css defaultMargin, value "Ok", class "btn btn-primary" ] [] )
+                                       ]
+                                )
+                            ]
+
+                    [] ->
+                        let
+                            numbers =
+                                List.length model.answered
+
+                            correctAnswers =
+                                List.length (List.filter isCorrect model.answered)
+                        in
+                        div []
+                            (feedback
+                                ++ [ div [] [ text "Game over.\n" ]
+                                   , div [] [ text ("Du hast " ++ String.fromInt correctAnswers ++ " von " ++ String.fromInt numbers ++ " Aufgaben korrekt gelöst!") ]
+                                   , button [ onClick Reset, css defaultMargin, class "btn btn-primary" ] [ text "Nochmal!" ]
+                                   ]
+                            )
+    in
+    mainWindow "Verdoppeln" contents
