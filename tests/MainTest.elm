@@ -1,7 +1,7 @@
 module MainTest exposing (..)
 
 import Expect
-import LargeSums.LargeSums as LargeSums
+import LargeSums.LargeSums as LargeSums exposing (largeSums)
 import Test exposing (..)
 
 
@@ -15,12 +15,12 @@ initTests =
     describe "Initialisation" <|
         let
             ( actualMessage, actualCommand ) =
-                LargeSums.init ()
+                largeSums.init ()
         in
         [ test "Should start with correct initial command"
             (\_ -> Expect.equal actualCommand LargeSums.buildTasks)
         , test "Should start with correct initial state" <|
             \_ ->
-                LargeSums.initialised actualMessage
+                largeSums.initialised actualMessage
                     |> expectFalse
         ]

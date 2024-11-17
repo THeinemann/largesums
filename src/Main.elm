@@ -5,7 +5,7 @@ import Doubling.Doubling as Doubling exposing (doubling)
 import Html.Styled exposing (Html, br, button, div, h2, span, text, toUnstyled)
 import Html.Styled.Attributes exposing (class, css, value)
 import Html.Styled.Events exposing (onClick)
-import LargeSums.LargeSums as LargeSums
+import LargeSums.LargeSums as LargeSums exposing (largeSums)
 import PracticeModule
 import Styling exposing (defaultMargin, mainWindow)
 
@@ -49,14 +49,14 @@ update commonMsg gameState =
         ( LargeSumsMsg msg, LargeSumsState state ) ->
             let
                 ( moduleState, moduleMsg ) =
-                    LargeSums.update msg state
+                    largeSums.update msg state
             in
             ( LargeSumsState moduleState, Cmd.map LargeSumsMsg moduleMsg )
 
         ( LargeSumsMsg LargeSums.Reset, Init ) ->
             let
                 ( moduleState, moduleMsg ) =
-                    LargeSums.init ()
+                    largeSums.init ()
             in
             ( LargeSumsState moduleState, Cmd.map LargeSumsMsg moduleMsg )
 
@@ -100,7 +100,7 @@ view : GameState -> Html Msg
 view model =
     case model of
         LargeSumsState state ->
-            Html.Styled.map LargeSumsMsg (LargeSums.view state)
+            Html.Styled.map LargeSumsMsg (PracticeModule.view largeSums state)
 
         DoublingState state ->
             Html.Styled.map DoublingMsg (PracticeModule.view doubling state)

@@ -1,14 +1,14 @@
 module LargeSums.LargeSums exposing (..)
 
 import Bootstrap.Alert exposing (simpleDanger, simpleSuccess)
-import Css exposing (..)
 import Html
-import Html.Styled exposing (Html, br, button, div, fromUnstyled, h1, h2, input, text)
+import Html.Styled exposing (Html, br, button, div, fromUnstyled, h2, input, text)
 import Html.Styled.Attributes as A exposing (autofocus, class, css, type_, value)
 import Html.Styled.Events exposing (onClick, onInput, onSubmit)
 import Html.Styled.Keyed as Keyed
+import PracticeModule exposing (PracticeModule)
 import Random
-import Styling exposing (defaultMargin, mainWindow)
+import Styling exposing (defaultMargin)
 import SumTask exposing (Task, fromInt)
 
 
@@ -39,19 +39,9 @@ type alias GameState =
     }
 
 
-initialised : GameState -> Bool
-initialised gamestate =
-    not (List.isEmpty gamestate.remaining && List.isEmpty gamestate.answered)
-
-
 buildTasks : Cmd Msg
 buildTasks =
     Random.generate (\list -> Input (List.map fromInt list)) (Random.list 20 (Random.int 1000 1000000))
-
-
-init : () -> ( GameState, Cmd Msg )
-init _ =
-    ( { currentValue = Nothing, remaining = [], answered = [], previous = Nothing }, buildTasks )
 
 
 
@@ -69,7 +59,7 @@ update : Msg -> GameState -> ( GameState, Cmd Msg )
 update msg gameState =
     case msg of
         Reset ->
-            init ()
+            largeSums.init ()
 
         Change val ->
             ( { gameState | currentValue = String.toInt val }, Cmd.none )
@@ -123,64 +113,9 @@ answerMessage answer =
     fromUnstyled unstyled
 
 
-view : GameState -> Html Msg
-view model =
-    let
-        contents =
-            if not (initialised model) then
-                h2 [] [ text "Laden. Bitte warten..." ]
-
-            else
-                let
-                    feedback =
-                        Maybe.map (\answer -> [ answerMessage answer ]) model.previous |> Maybe.withDefault []
-                in
-                case model.remaining of
-                    currentTask :: _ ->
-                        div []
-                            [ Keyed.node "form"
-                                [ onSubmit Submit ]
-                                (List.map (\x -> ( "feedback", x )) feedback
-                                    ++ [ ( "question", div [] [ text ("Was ist " ++ SumTask.sumString currentTask ++ "?") ] )
-                                       , ( "input"
-                                         , input
-                                            [ onInput Change
-                                            , type_ "number"
-                                            , value (Maybe.map String.fromInt model.currentValue |> Maybe.withDefault "")
-                                            , css defaultMargin
-                                            , autofocus True
-                                            , A.required True
-                                            ]
-                                            []
-                                         )
-                                       , ( "br", br [] [] )
-                                       , ( "submitButton", input [ type_ "submit", css defaultMargin, value "Ok", class "btn btn-primary" ] [] )
-                                       ]
-                                )
-                            ]
-
-                    [] ->
-                        let
-                            numbers =
-                                List.length model.answered
-
-                            correctAnswers =
-                                List.length (List.filter isCorrect model.answered)
-                        in
-                        div []
-                            (feedback
-                                ++ [ div [] [ text "Game over.\n" ]
-                                   , div [] [ text ("Du hast " ++ String.fromInt correctAnswers ++ " von " ++ String.fromInt numbers ++ " Aufgaben korrekt gelöst!") ]
-                                   , button [ onClick Reset, css defaultMargin, class "btn btn-primary" ] [ text "Nochmal!" ]
-                                   ]
-                            )
-    in
-    mainWindow "Große Summen" contents
-
-
-view1 : GameState -> Html Msg
-view1 model =
-    if not (initialised model) then
+viewContents : GameState -> Html Msg
+viewContents model =
+    if not (largeSums.initialised model) then
         h2 [] [ text "Laden. Bitte warten..." ]
 
     else
@@ -227,3 +162,13 @@ view1 model =
                            , button [ onClick Reset, css defaultMargin, class "btn btn-primary" ] [ text "Nochmal!" ]
                            ]
                     )
+
+
+largeSums : PracticeModule GameState Msg
+largeSums =
+    { name = "Große Summen"
+    , init = \_ -> ( { currentValue = Nothing, remaining = [], answered = [], previous = Nothing }, buildTasks )
+    , initialised = \gamestate -> not (List.isEmpty gamestate.remaining && List.isEmpty gamestate.answered)
+    , update = update
+    , viewContents = viewContents
+    }
