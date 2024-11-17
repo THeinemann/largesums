@@ -2,8 +2,11 @@ module PracticeModule exposing (..)
 
 import Bootstrap.Alert exposing (simpleDanger, simpleSuccess)
 import Html
-import Html.Styled exposing (Html, fromUnstyled, h2, text)
-import Styling exposing (mainWindow)
+import Html.Styled exposing (Html, br, button, div, fromUnstyled, h2, input, text)
+import Html.Styled.Attributes as A exposing (autofocus, class, css, type_, value)
+import Html.Styled.Events exposing (onClick, onInput, onSubmit)
+import Html.Styled.Keyed as Keyed
+import Styling exposing (defaultMargin, mainWindow)
 
 
 
@@ -48,8 +51,8 @@ type Msg task
 type alias PracticeModule task =
     { name : String
     , init : () -> ( GameState task, Cmd (Msg task) )
-    , viewContents : GameState task -> Html (Msg task)
     , defaultTask : task
+    , question : task -> String
     , expected : task -> Int
     , errorMessage : task -> String
     }
@@ -117,14 +120,57 @@ answerMessage mod answer =
     fromUnstyled unstyled
 
 
+viewContents : PracticeModule task -> GameState task -> Html (Msg task)
+viewContents mod model =
+    if not (initialised model) then
+        h2 [] [ text "Laden. Bitte warten..." ]
+
+    else
+        let
+            feedback =
+                Maybe.map (\answer -> [ answerMessage mod answer ]) model.previous |> Maybe.withDefault []
+        in
+        case model.remaining of
+            currentTask :: _ ->
+                div []
+                    [ Keyed.node "form"
+                        [ onSubmit Submit ]
+                        (List.map (\x -> ( "feedback", x )) feedback
+                            ++ [ ( "question", div [] [ text (mod.question currentTask) ] )
+                               , ( "input"
+                                 , input
+                                    [ onInput Change
+                                    , type_ "number"
+                                    , value (Maybe.map String.fromInt model.currentValue |> Maybe.withDefault "")
+                                    , css defaultMargin
+                                    , autofocus True
+                                    , A.required True
+                                    ]
+                                    []
+                                 )
+                               , ( "br", br [] [] )
+                               , ( "submitButton", input [ type_ "submit", css defaultMargin, value "Ok", class "btn btn-primary" ] [] )
+                               ]
+                        )
+                    ]
+
+            [] ->
+                let
+                    numbers =
+                        List.length model.answered
+
+                    correctAnswers =
+                        List.length (List.filter isCorrect model.answered)
+                in
+                div []
+                    (feedback
+                        ++ [ div [] [ text "Game over.\n" ]
+                           , div [] [ text ("Du hast " ++ String.fromInt correctAnswers ++ " von " ++ String.fromInt numbers ++ " Aufgaben korrekt gelöst!") ]
+                           , button [ onClick Reset, css defaultMargin, class "btn btn-primary" ] [ text "Nochmal!" ]
+                           ]
+                    )
+
+
 view : PracticeModule task -> GameState task -> Html (Msg task)
 view mod model =
-    let
-        contents =
-            if not (initialised model) then
-                h2 [] [ text "Laden. Bitte warten..." ]
-
-            else
-                mod.viewContents model
-    in
-    mainWindow mod.name contents
+    mainWindow mod.name (viewContents mod model)
