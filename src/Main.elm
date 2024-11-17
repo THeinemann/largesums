@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Browser
+import Css exposing (px, width)
 import Html.Styled exposing (Html, br, button, div, h2, span, text, toUnstyled)
 import Html.Styled.Attributes exposing (class, css, value)
 import Html.Styled.Events exposing (onClick)
@@ -99,7 +100,7 @@ selectionButton name msg =
         [ button
             [ onClick msg
             , value name
-            , css defaultMargin
+            , css (defaultMargin ++ [ width (px 200) ])
             , class "btn btn-info"
             ]
             [ text name ]
