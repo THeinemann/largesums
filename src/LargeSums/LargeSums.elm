@@ -37,46 +37,6 @@ type alias Msg =
     PracticeModule.Msg Task
 
 
-update : Msg -> GameState -> ( GameState, Cmd Msg )
-update msg gameState =
-    case msg of
-        Reset ->
-            largeSums.init ()
-
-        Change val ->
-            ( { gameState | currentValue = String.toInt val }, Cmd.none )
-
-        Submit ->
-            let
-                currentTask =
-                    List.head gameState.remaining |> Maybe.withDefault (fromInt 0)
-
-                expected =
-                    currentTask.sum
-
-                answer =
-                    if Maybe.withDefault -1 gameState.currentValue == expected then
-                        Correct
-
-                    else
-                        Wrong currentTask
-
-                updatedAnswers =
-                    answer :: gameState.answered
-
-                newModel =
-                    { currentValue = Nothing
-                    , remaining = List.tail gameState.remaining |> Maybe.withDefault []
-                    , answered = updatedAnswers
-                    , previous = Just answer
-                    }
-            in
-            ( newModel, Cmd.none )
-
-        Input list ->
-            ( { gameState | remaining = list }, Cmd.none )
-
-
 
 -- VIEW
 
@@ -150,6 +110,7 @@ largeSums : PracticeModule Task
 largeSums =
     { name = "Große Summen"
     , init = \_ -> ( { currentValue = Nothing, remaining = [], answered = [], previous = Nothing }, buildTasks )
-    , update = update
     , viewContents = viewContents
+    , defaultTask = SumTask.fromInt 0
+    , expected = \task -> task.sum
     }

@@ -37,46 +37,6 @@ type alias Msg =
     PracticeModule.Msg Int
 
 
-update : Msg -> GameState -> ( GameState, Cmd Msg )
-update msg gameState =
-    case msg of
-        Reset ->
-            doubling.init ()
-
-        Change val ->
-            ( { gameState | currentValue = String.toInt val }, Cmd.none )
-
-        Submit ->
-            let
-                currentNumber =
-                    List.head gameState.remaining |> Maybe.withDefault 0
-
-                expected =
-                    currentNumber * 2
-
-                answer =
-                    if Maybe.withDefault -1 gameState.currentValue == expected then
-                        Correct
-
-                    else
-                        Wrong currentNumber
-
-                updatedAnswers =
-                    answer :: gameState.answered
-
-                newModel =
-                    { currentValue = Nothing
-                    , remaining = List.tail gameState.remaining |> Maybe.withDefault []
-                    , answered = updatedAnswers
-                    , previous = Just answer
-                    }
-            in
-            ( newModel, Cmd.none )
-
-        Input list ->
-            ( { gameState | remaining = list }, Cmd.none )
-
-
 
 -- VIEW
 
@@ -149,6 +109,7 @@ doubling : PracticeModule Int
 doubling =
     { name = "Verdoppeln"
     , init = \_ -> ( { currentValue = Nothing, remaining = [], answered = [], previous = Nothing }, shuffleCommand )
-    , update = update
     , viewContents = viewContents
+    , defaultTask = 0
+    , expected = \task -> task * 2
     }

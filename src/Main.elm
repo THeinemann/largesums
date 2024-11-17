@@ -49,7 +49,7 @@ update commonMsg gameState =
         ( LargeSumsMsg msg, LargeSumsState state ) ->
             let
                 ( moduleState, moduleMsg ) =
-                    largeSums.update msg state
+                    PracticeModule.update largeSums msg state
             in
             ( LargeSumsState moduleState, Cmd.map LargeSumsMsg moduleMsg )
 
@@ -63,7 +63,7 @@ update commonMsg gameState =
         ( DoublingMsg msg, DoublingState state ) ->
             let
                 ( moduleState, moduleMsg ) =
-                    doubling.update msg state
+                    PracticeModule.update doubling msg state
             in
             ( DoublingState moduleState, Cmd.map DoublingMsg moduleMsg )
 

@@ -46,9 +46,58 @@ type Msg task
 type alias PracticeModule task =
     { name : String
     , init : () -> ( GameState task, Cmd (Msg task) )
-    , update : Msg task -> GameState task -> ( GameState task, Cmd (Msg task) )
     , viewContents : GameState task -> Html (Msg task)
+    , defaultTask : task
+    , expected : task -> Int
     }
+
+
+
+-- UPDATE
+
+
+update : PracticeModule task -> Msg task -> GameState task -> ( GameState task, Cmd (Msg task) )
+update mod msg gameState =
+    case msg of
+        Reset ->
+            mod.init ()
+
+        Change val ->
+            ( { gameState | currentValue = String.toInt val }, Cmd.none )
+
+        Submit ->
+            let
+                currentTask =
+                    List.head gameState.remaining |> Maybe.withDefault mod.defaultTask
+
+                expected =
+                    mod.expected currentTask
+
+                answer =
+                    if Maybe.withDefault -1 gameState.currentValue == expected then
+                        Correct
+
+                    else
+                        Wrong currentTask
+
+                updatedAnswers =
+                    answer :: gameState.answered
+
+                newModel =
+                    { currentValue = Nothing
+                    , remaining = List.tail gameState.remaining |> Maybe.withDefault []
+                    , answered = updatedAnswers
+                    , previous = Just answer
+                    }
+            in
+            ( newModel, Cmd.none )
+
+        Input list ->
+            ( { gameState | remaining = list }, Cmd.none )
+
+
+
+-- VIEW
 
 
 view : PracticeModule task -> GameState task -> Html (Msg task)
