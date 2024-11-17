@@ -29,11 +29,6 @@ shuffleCommand =
     Random.generate Input (Random.List.shuffle (List.range 1 20))
 
 
-init : () -> ( GameState, Cmd Msg )
-init _ =
-    ( { currentValue = Nothing, remaining = [], answered = [], previous = Nothing }, shuffleCommand )
-
-
 
 -- UPDATE
 
@@ -46,7 +41,7 @@ update : Msg -> GameState -> ( GameState, Cmd Msg )
 update msg gameState =
     case msg of
         Reset ->
-            init ()
+            doubling.init ()
 
         Change val ->
             ( { gameState | currentValue = String.toInt val }, Cmd.none )
