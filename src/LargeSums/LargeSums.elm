@@ -97,7 +97,7 @@ answerMessage answer =
 
 viewContents : GameState -> Html Msg
 viewContents model =
-    if not (largeSums.initialised model) then
+    if not (PracticeModule.initialised model) then
         h2 [] [ text "Laden. Bitte warten..." ]
 
     else
@@ -150,7 +150,6 @@ largeSums : PracticeModule Task
 largeSums =
     { name = "Große Summen"
     , init = \_ -> ( { currentValue = Nothing, remaining = [], answered = [], previous = Nothing }, buildTasks )
-    , initialised = \gamestate -> not (List.isEmpty gamestate.remaining && List.isEmpty gamestate.answered)
     , update = update
     , viewContents = viewContents
     }

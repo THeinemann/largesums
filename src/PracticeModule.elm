@@ -31,6 +31,11 @@ type alias GameState task =
     }
 
 
+initialised : GameState task -> Bool
+initialised gamestate =
+    not (List.isEmpty gamestate.remaining && List.isEmpty gamestate.answered)
+
+
 type Msg task
     = Change String
     | Submit
@@ -41,7 +46,6 @@ type Msg task
 type alias PracticeModule task =
     { name : String
     , init : () -> ( GameState task, Cmd (Msg task) )
-    , initialised : GameState task -> Bool
     , update : Msg task -> GameState task -> ( GameState task, Cmd (Msg task) )
     , viewContents : GameState task -> Html (Msg task)
     }
@@ -51,7 +55,7 @@ view : PracticeModule task -> GameState task -> Html (Msg task)
 view mod model =
     let
         contents =
-            if not (mod.initialised model) then
+            if not (initialised model) then
                 h2 [] [ text "Laden. Bitte warten..." ]
 
             else

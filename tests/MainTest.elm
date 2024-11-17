@@ -2,6 +2,7 @@ module MainTest exposing (..)
 
 import Expect
 import LargeSums.LargeSums as LargeSums exposing (largeSums)
+import PracticeModule
 import Test exposing (..)
 
 
@@ -21,6 +22,6 @@ initTests =
             (\_ -> Expect.equal actualCommand LargeSums.buildTasks)
         , test "Should start with correct initial state" <|
             \_ ->
-                largeSums.initialised actualMessage
+                PracticeModule.initialised actualMessage
                     |> expectFalse
         ]

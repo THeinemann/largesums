@@ -96,7 +96,7 @@ answerMessage answer =
 
 
 viewContents model =
-    if not (doubling.initialised model) then
+    if not (PracticeModule.initialised model) then
         h2 [] [ text "Laden. Bitte warten..." ]
 
     else
@@ -149,7 +149,6 @@ doubling : PracticeModule Int
 doubling =
     { name = "Verdoppeln"
     , init = \_ -> ( { currentValue = Nothing, remaining = [], answered = [], previous = Nothing }, shuffleCommand )
-    , initialised = \gamestate -> not (List.isEmpty gamestate.remaining && List.isEmpty gamestate.answered)
     , update = update
     , viewContents = viewContents
     }
