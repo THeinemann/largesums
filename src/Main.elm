@@ -7,7 +7,7 @@ import Html.Styled.Events exposing (onClick)
 import Modules.Division as Division exposing (division)
 import Modules.Doubling as Doubling exposing (doubling)
 import Modules.LargeSums as LargeSums exposing (largeSums)
-import PracticeModule exposing (Msg(..))
+import PracticeModule exposing (Msg(..), PracticeModule)
 import Styling exposing (defaultMargin, mainWindow)
 
 
@@ -46,50 +46,44 @@ type Msg
     | LargeSumsMsg LargeSums.Msg
 
 
+delegateUpdate : PracticeModule task -> (PracticeModule.GameState task -> GameState) -> (PracticeModule.Msg task -> Msg) -> PracticeModule.Msg task -> PracticeModule.GameState task -> ( GameState, Cmd Msg )
+delegateUpdate mod wrapState wrapMessage msg state =
+    let
+        ( moduleState, moduleMsg ) =
+            PracticeModule.update mod msg state
+    in
+    ( wrapState moduleState, Cmd.map wrapMessage moduleMsg )
+
+
+initModule : PracticeModule task -> (PracticeModule.GameState task -> GameState) -> (PracticeModule.Msg task -> Msg) -> ( GameState, Cmd Msg )
+initModule mod wrapState wrapMessage =
+    let
+        ( moduleState, moduleMsg ) =
+            mod.init ()
+    in
+    ( wrapState moduleState, Cmd.map wrapMessage moduleMsg )
+
+
 update : Msg -> GameState -> ( GameState, Cmd Msg )
 update commonMsg gameState =
     case ( commonMsg, gameState ) of
         ( LargeSumsMsg msg, LargeSumsState state ) ->
-            let
-                ( moduleState, moduleMsg ) =
-                    PracticeModule.update largeSums msg state
-            in
-            ( LargeSumsState moduleState, Cmd.map LargeSumsMsg moduleMsg )
+            delegateUpdate largeSums LargeSumsState LargeSumsMsg msg state
 
         ( LargeSumsMsg Reset, Init ) ->
-            let
-                ( moduleState, moduleMsg ) =
-                    largeSums.init ()
-            in
-            ( LargeSumsState moduleState, Cmd.map LargeSumsMsg moduleMsg )
+            initModule largeSums LargeSumsState LargeSumsMsg
 
         ( DoublingMsg msg, DoublingState state ) ->
-            let
-                ( moduleState, moduleMsg ) =
-                    PracticeModule.update doubling msg state
-            in
-            ( DoublingState moduleState, Cmd.map DoublingMsg moduleMsg )
+            delegateUpdate doubling DoublingState DoublingMsg msg state
 
         ( DoublingMsg Reset, Init ) ->
-            let
-                ( moduleState, moduleMsg ) =
-                    doubling.init ()
-            in
-            ( DoublingState moduleState, Cmd.map DoublingMsg moduleMsg )
+            initModule doubling DoublingState DoublingMsg
 
         ( DivisionMsg msg, DivisionState state ) ->
-            let
-                ( moduleState, moduleMsg ) =
-                    PracticeModule.update division msg state
-            in
-            ( DivisionState moduleState, Cmd.map DivisionMsg moduleMsg )
+            delegateUpdate division DivisionState DivisionMsg msg state
 
         ( DivisionMsg Reset, Init ) ->
-            let
-                ( moduleState, moduleMsg ) =
-                    division.init ()
-            in
-            ( DivisionState moduleState, Cmd.map DivisionMsg moduleMsg )
+            initModule division DivisionState DivisionMsg
 
         _ ->
             ( Error "Game state and message do not match. This should not happen.", Cmd.none )
