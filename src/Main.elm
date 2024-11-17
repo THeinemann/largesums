@@ -1,16 +1,13 @@
 module Main exposing (..)
 
-import Bootstrap.Alert exposing (simpleDanger, simpleSuccess)
 import Browser
-import Doubling.Doubling as Doubling
-import Html
-import Html.Styled exposing (Html, br, button, div, fromUnstyled, h2, input, span, text, toUnstyled)
-import Html.Styled.Attributes exposing (class, css, type_, value)
-import Html.Styled.Events exposing (onClick, onInput, onSubmit)
-import Html.Styled.Keyed as Keyed
+import Doubling.Doubling as Doubling exposing (doubling)
+import Html.Styled exposing (Html, br, button, div, h2, span, text, toUnstyled)
+import Html.Styled.Attributes exposing (class, css, value)
+import Html.Styled.Events exposing (onClick)
 import LargeSums.LargeSums as LargeSums
+import PracticeModule
 import Styling exposing (defaultMargin, mainWindow)
-import SumTask exposing (Task)
 
 
 
@@ -66,14 +63,14 @@ update commonMsg gameState =
         ( DoublingMsg msg, DoublingState state ) ->
             let
                 ( moduleState, moduleMsg ) =
-                    Doubling.update msg state
+                    doubling.update msg state
             in
             ( DoublingState moduleState, Cmd.map DoublingMsg moduleMsg )
 
         ( DoublingMsg Doubling.Reset, Init ) ->
             let
                 ( moduleState, moduleMsg ) =
-                    Doubling.init ()
+                    doubling.init ()
             in
             ( DoublingState moduleState, Cmd.map DoublingMsg moduleMsg )
 
@@ -106,7 +103,7 @@ view model =
             Html.Styled.map LargeSumsMsg (LargeSums.view state)
 
         DoublingState state ->
-            Html.Styled.map DoublingMsg (Doubling.view state)
+            Html.Styled.map DoublingMsg (PracticeModule.view doubling state)
 
         Init ->
             let
