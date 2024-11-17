@@ -4,6 +4,7 @@ import Browser
 import Html.Styled exposing (Html, br, button, div, h2, span, text, toUnstyled)
 import Html.Styled.Attributes exposing (class, css, value)
 import Html.Styled.Events exposing (onClick)
+import Modules.Division as Division exposing (division)
 import Modules.Doubling as Doubling exposing (doubling)
 import Modules.LargeSums as LargeSums exposing (largeSums)
 import PracticeModule exposing (Msg(..))
@@ -25,8 +26,9 @@ main =
 type GameState
     = Init
     | Error String
-    | LargeSumsState LargeSums.GameState
     | DoublingState Doubling.GameState
+    | DivisionState Division.GameState
+    | LargeSumsState LargeSums.GameState
 
 
 init : () -> ( GameState, Cmd Msg )
@@ -39,8 +41,9 @@ init _ =
 
 
 type Msg
-    = LargeSumsMsg LargeSums.Msg
-    | DoublingMsg Doubling.Msg
+    = DoublingMsg Doubling.Msg
+    | DivisionMsg Division.Msg
+    | LargeSumsMsg LargeSums.Msg
 
 
 update : Msg -> GameState -> ( GameState, Cmd Msg )
@@ -74,6 +77,20 @@ update commonMsg gameState =
             in
             ( DoublingState moduleState, Cmd.map DoublingMsg moduleMsg )
 
+        ( DivisionMsg msg, DivisionState state ) ->
+            let
+                ( moduleState, moduleMsg ) =
+                    PracticeModule.update division msg state
+            in
+            ( DivisionState moduleState, Cmd.map DivisionMsg moduleMsg )
+
+        ( DivisionMsg Reset, Init ) ->
+            let
+                ( moduleState, moduleMsg ) =
+                    division.init ()
+            in
+            ( DivisionState moduleState, Cmd.map DivisionMsg moduleMsg )
+
         _ ->
             ( Error "Game state and message do not match. This should not happen.", Cmd.none )
 
@@ -105,6 +122,9 @@ view model =
         DoublingState state ->
             Html.Styled.map DoublingMsg (PracticeModule.view doubling state)
 
+        DivisionState state ->
+            Html.Styled.map DivisionMsg (PracticeModule.view division state)
+
         Init ->
             let
                 contents =
@@ -112,6 +132,7 @@ view model =
                         [ text "Bitte wähle eine Übung:"
                         , br [] []
                         , selectionButton "Verdoppeln" (DoublingMsg Reset)
+                        , selectionButton "Dividieren" (DivisionMsg Reset)
                         , selectionButton "Große Summen" (LargeSumsMsg Reset)
                         ]
             in
