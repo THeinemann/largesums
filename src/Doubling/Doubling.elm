@@ -6,7 +6,7 @@ import Html.Styled exposing (Html, br, button, div, fromUnstyled, h2, input, tex
 import Html.Styled.Attributes as A exposing (autofocus, class, css, type_, value)
 import Html.Styled.Events exposing (onClick, onInput, onSubmit)
 import Html.Styled.Keyed as Keyed
-import PracticeModule exposing (PracticeModule)
+import PracticeModule exposing (Answer(..), Msg(..), PracticeModule, isCorrect)
 import Random
 import Random.List
 import Styling exposing (defaultMargin)
@@ -16,32 +16,12 @@ import Styling exposing (defaultMargin)
 -- MODEL
 
 
-type Answer
-    = Correct
-    | Wrong Int
-
-
-isCorrect : Answer -> Bool
-isCorrect answer =
-    case answer of
-        Correct ->
-            True
-
-        _ ->
-            False
+type alias Answer =
+    PracticeModule.Answer Int
 
 
 type alias GameState =
-    { currentValue : Maybe Int
-    , remaining : List Int
-    , answered : List Answer
-    , previous : Maybe Answer
-    }
-
-
-initialised : GameState -> Bool
-initialised gamestate =
-    not (List.isEmpty gamestate.remaining && List.isEmpty gamestate.answered)
+    PracticeModule.GameState Int
 
 
 shuffleCommand : Cmd Msg
@@ -58,11 +38,8 @@ init _ =
 -- UPDATE
 
 
-type Msg
-    = Change String
-    | Submit
-    | Input (List Int)
-    | Reset
+type alias Msg =
+    PracticeModule.Msg Int
 
 
 update : Msg -> GameState -> ( GameState, Cmd Msg )
@@ -124,7 +101,7 @@ answerMessage answer =
 
 
 viewContents model =
-    if not (initialised model) then
+    if not (doubling.initialised model) then
         h2 [] [ text "Laden. Bitte warten..." ]
 
     else
@@ -173,7 +150,7 @@ viewContents model =
                     )
 
 
-doubling : PracticeModule GameState Msg
+doubling : PracticeModule Int
 doubling =
     { name = "Verdoppeln"
     , init = \_ -> ( { currentValue = Nothing, remaining = [], answered = [], previous = Nothing }, shuffleCommand )

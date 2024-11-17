@@ -6,7 +6,7 @@ import Html.Styled exposing (Html, br, button, div, h2, span, text, toUnstyled)
 import Html.Styled.Attributes exposing (class, css, value)
 import Html.Styled.Events exposing (onClick)
 import LargeSums.LargeSums as LargeSums exposing (largeSums)
-import PracticeModule
+import PracticeModule exposing (Msg(..))
 import Styling exposing (defaultMargin, mainWindow)
 
 
@@ -53,7 +53,7 @@ update commonMsg gameState =
             in
             ( LargeSumsState moduleState, Cmd.map LargeSumsMsg moduleMsg )
 
-        ( LargeSumsMsg LargeSums.Reset, Init ) ->
+        ( LargeSumsMsg Reset, Init ) ->
             let
                 ( moduleState, moduleMsg ) =
                     largeSums.init ()
@@ -67,7 +67,7 @@ update commonMsg gameState =
             in
             ( DoublingState moduleState, Cmd.map DoublingMsg moduleMsg )
 
-        ( DoublingMsg Doubling.Reset, Init ) ->
+        ( DoublingMsg Reset, Init ) ->
             let
                 ( moduleState, moduleMsg ) =
                     doubling.init ()
@@ -111,8 +111,8 @@ view model =
                     div []
                         [ text "Bitte wähle eine Übung:"
                         , br [] []
-                        , selectionButton "Verdoppeln" (DoublingMsg Doubling.Reset)
-                        , selectionButton "Große Summen" (LargeSumsMsg LargeSums.Reset)
+                        , selectionButton "Verdoppeln" (DoublingMsg Reset)
+                        , selectionButton "Große Summen" (LargeSumsMsg Reset)
                         ]
             in
             mainWindow "Mathe" contents

@@ -6,7 +6,7 @@ import Html.Styled exposing (Html, br, button, div, fromUnstyled, h2, input, tex
 import Html.Styled.Attributes as A exposing (autofocus, class, css, type_, value)
 import Html.Styled.Events exposing (onClick, onInput, onSubmit)
 import Html.Styled.Keyed as Keyed
-import PracticeModule exposing (PracticeModule)
+import PracticeModule exposing (Answer(..), Msg(..), PracticeModule, isCorrect)
 import Random
 import Styling exposing (defaultMargin)
 import SumTask exposing (Task, fromInt)
@@ -16,27 +16,12 @@ import SumTask exposing (Task, fromInt)
 -- MODEL
 
 
-type Answer
-    = Correct
-    | Wrong Task
-
-
-isCorrect : Answer -> Bool
-isCorrect answer =
-    case answer of
-        Correct ->
-            True
-
-        _ ->
-            False
+type alias Answer =
+    PracticeModule.Answer Task
 
 
 type alias GameState =
-    { currentValue : Maybe Int
-    , remaining : List Task
-    , answered : List Answer
-    , previous : Maybe Answer
-    }
+    PracticeModule.GameState Task
 
 
 buildTasks : Cmd Msg
@@ -48,11 +33,8 @@ buildTasks =
 -- UPDATE
 
 
-type Msg
-    = Change String
-    | Submit
-    | Input (List Task)
-    | Reset
+type alias Msg =
+    PracticeModule.Msg Task
 
 
 update : Msg -> GameState -> ( GameState, Cmd Msg )
@@ -164,7 +146,7 @@ viewContents model =
                     )
 
 
-largeSums : PracticeModule GameState Msg
+largeSums : PracticeModule Task
 largeSums =
     { name = "Große Summen"
     , init = \_ -> ( { currentValue = Nothing, remaining = [], answered = [], previous = Nothing }, buildTasks )
