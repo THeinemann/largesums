@@ -41,20 +41,6 @@ type alias Msg =
 -- VIEW
 
 
-answerMessage : Answer -> Html msg
-answerMessage answer =
-    let
-        unstyled =
-            case answer of
-                Correct ->
-                    simpleSuccess [] [ Html.text "Richtig!" ]
-
-                Wrong task ->
-                    simpleDanger [] [ Html.text ("Leider Falsch. " ++ SumTask.sumString task ++ " ist " ++ String.fromInt task.sum ++ ".") ]
-    in
-    fromUnstyled unstyled
-
-
 viewContents : GameState -> Html Msg
 viewContents model =
     if not (PracticeModule.initialised model) then
@@ -63,7 +49,7 @@ viewContents model =
     else
         let
             feedback =
-                Maybe.map (\answer -> [ answerMessage answer ]) model.previous |> Maybe.withDefault []
+                Maybe.map (\answer -> [ PracticeModule.answerMessage largeSums answer ]) model.previous |> Maybe.withDefault []
         in
         case model.remaining of
             currentTask :: _ ->
@@ -113,4 +99,5 @@ largeSums =
     , viewContents = viewContents
     , defaultTask = SumTask.fromInt 0
     , expected = \task -> task.sum
+    , errorMessage = \task -> SumTask.sumString task ++ " ist " ++ String.fromInt task.sum ++ "."
     }

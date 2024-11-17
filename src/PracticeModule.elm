@@ -1,6 +1,8 @@
 module PracticeModule exposing (..)
 
-import Html.Styled exposing (Html, h2, text)
+import Bootstrap.Alert exposing (simpleDanger, simpleSuccess)
+import Html
+import Html.Styled exposing (Html, fromUnstyled, h2, text)
 import Styling exposing (mainWindow)
 
 
@@ -49,6 +51,7 @@ type alias PracticeModule task =
     , viewContents : GameState task -> Html (Msg task)
     , defaultTask : task
     , expected : task -> Int
+    , errorMessage : task -> String
     }
 
 
@@ -98,6 +101,20 @@ update mod msg gameState =
 
 
 -- VIEW
+
+
+answerMessage : PracticeModule task -> Answer task -> Html msg
+answerMessage mod answer =
+    let
+        unstyled =
+            case answer of
+                Correct ->
+                    simpleSuccess [] [ Html.text "Richtig!" ]
+
+                Wrong task ->
+                    simpleDanger [] [ Html.text ("Leider Falsch. " ++ mod.errorMessage task) ]
+    in
+    fromUnstyled unstyled
 
 
 view : PracticeModule task -> GameState task -> Html (Msg task)

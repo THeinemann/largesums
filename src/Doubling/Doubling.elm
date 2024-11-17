@@ -41,20 +41,6 @@ type alias Msg =
 -- VIEW
 
 
-answerMessage : Answer -> Html msg
-answerMessage answer =
-    let
-        unstyled =
-            case answer of
-                Correct ->
-                    simpleSuccess [] [ Html.text "Richtig!" ]
-
-                Wrong n ->
-                    simpleDanger [] [ Html.text ("Leider Falsch. Das Doppelte von " ++ String.fromInt n ++ " ist " ++ String.fromInt (n * 2) ++ ".") ]
-    in
-    fromUnstyled unstyled
-
-
 viewContents model =
     if not (PracticeModule.initialised model) then
         h2 [] [ text "Laden. Bitte warten..." ]
@@ -62,7 +48,7 @@ viewContents model =
     else
         let
             feedback =
-                Maybe.map (\answer -> [ answerMessage answer ]) model.previous |> Maybe.withDefault []
+                Maybe.map (\answer -> [ PracticeModule.answerMessage doubling answer ]) model.previous |> Maybe.withDefault []
         in
         case model.remaining of
             currentNumber :: _ ->
@@ -112,4 +98,5 @@ doubling =
     , viewContents = viewContents
     , defaultTask = 0
     , expected = \task -> task * 2
+    , errorMessage = \n -> "Das Doppelte von " ++ String.fromInt n ++ " ist " ++ String.fromInt (n * 2) ++ "."
     }
