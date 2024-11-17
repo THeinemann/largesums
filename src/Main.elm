@@ -1,11 +1,11 @@
 module Main exposing (..)
 
 import Browser
-import Doubling.Doubling as Doubling exposing (doubling)
 import Html.Styled exposing (Html, br, button, div, h2, span, text, toUnstyled)
 import Html.Styled.Attributes exposing (class, css, value)
 import Html.Styled.Events exposing (onClick)
-import LargeSums.LargeSums as LargeSums exposing (largeSums)
+import Modules.Doubling as Doubling exposing (doubling)
+import Modules.LargeSums as LargeSums exposing (largeSums)
 import PracticeModule exposing (Msg(..))
 import Styling exposing (defaultMargin, mainWindow)
 

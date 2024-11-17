@@ -1,7 +1,7 @@
 module MainTest exposing (..)
 
 import Expect
-import LargeSums.LargeSums as LargeSums exposing (largeSums)
+import Modules.LargeSums as LargeSums exposing (largeSums)
 import PracticeModule
 import Test exposing (..)
 

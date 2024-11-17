@@ -1,4 +1,4 @@
-module Doubling.Doubling exposing (..)
+module Modules.Doubling exposing (..)
 
 import PracticeModule exposing (Answer(..), Msg(..), PracticeModule)
 import Random
